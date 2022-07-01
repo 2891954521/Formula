@@ -12,14 +12,19 @@ def upload():
     if image is None:
         return {
             'code': 500,
-            'msg': '文件上传为空'
+            'msg': '文件上传为空',
+            'formula': '',
+            'result': ''
         }
     else:
+        formula, result = Core.process(image)
         return {
             'code': 200,
-            'msg': Core.process(image)
+            'msg': '文件上传成功',
+            'formula': formula,
+            'result': result
         }
 
 
 def run():
-    app.run()
+    app.run(host='0.0.0.0', port=8080, debug=False)
