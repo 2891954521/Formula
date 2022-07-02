@@ -37,6 +37,9 @@ def split(binary) -> list:
         line = binary[start: pos, :]
 
         cur = 0
+        lastWidth = -1
+        lastHeight = -1
+
         row = line.sum(axis=0)
 
         while cur < len(row) - 1:
@@ -54,7 +57,31 @@ def split(binary) -> list:
             # 确定切割区域
             split = split[start: end + 1, :]
 
-            if split.shape[1] > 5 or split.shape[0] > 5:
+            width = split.shape[1]
+            height = split.shape[0]
+
+            if width > 5 or height > 5:
+
+                if lastHeight != -1 and lastWidth != -1:
+                    if  height / lastHeight < 0.4 and width / lastWidth < 0.4:
+                        continue
+                    
+                lastWidth = width
+                lastHeight = height
+
+                # 调整为28x28像素
+                if width > height:
+                    delta = width - height
+                    top = delta // 2
+                    bottom = delta - top
+                    split = cv2.copyMakeBorder(split, top, bottom, 0, 0, cv2.BORDER_CONSTANT, value=0)
+                elif width < height:
+                    delta = height - width
+                    left = delta // 2
+                    right = delta - left
+                    split = cv2.copyMakeBorder(split, 0, 0, left, right, cv2.BORDER_CONSTANT, value=0)
+                split = cv2.resize(split, (28, 28))
+
                 images.append(split)
 
             start = -1

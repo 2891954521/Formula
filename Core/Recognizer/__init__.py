@@ -1,7 +1,6 @@
 import os
 import cv2
 import joblib
-import numpy as np
 from .. import DIP
 
 path = os.path.dirname(os.path.abspath(__file__))
@@ -9,6 +8,7 @@ model = None
 
 def recognize(image) -> str:
 
+    global model
     if model is None:
         model = joblib.load(os.path.join(path, 'svm.model'))
 
@@ -19,9 +19,16 @@ def recognize(image) -> str:
     # ret, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
     binary = DIP.binarization(gray)
 
-    filtered = DIP.averageFilter(binary, 5)
+    # 滤波
+    filtered = DIP.averageFilter(binary, 3)
 
     # 分割
     images = DIP.split(filtered)
-    images = [np.reshape(image, (1, -1)) for image in images]
+    
+    # for image in images:
+    #     cv2.imshow('image', image)
+    #     cv2.waitKey(0)
+
+    images = [image.flatten() for image in images]
+
     return ''.join(model.predict(images))

@@ -8,7 +8,7 @@ def SVMTrain():
     st = time.time()
     dataMat, dataLabel = DataSet.loadData()
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'svm.model')
-    clf = svm.SVC(C=1.0, kernel='rbf', decision_function_shape='ovr')
+    clf = svm.SVC(C = 1.0, kernel='rbf', cache_size = 1000, verbose = True, decision_function_shape='ovr')
     rf = clf.fit(dataMat, dataLabel)
     joblib.dump(rf, path)
     et = time.time()
