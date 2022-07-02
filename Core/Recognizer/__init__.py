@@ -12,9 +12,16 @@ def recognize(image) -> str:
     # ret, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
     binary = DIP.binarization(gray)
 
+    filtered = DIP.averageFilter(binary, 5)
+
+    cv2.imwrite(f'/test/test.jpg', filtered)
+
     # 分割
-    images = DIP.split(binary)
+    images = DIP.split(filtered)
     
-    # Tool.ShowImage(result)
+    for i in range(len(images)):
+        cv2.imshow(f'{i}', images[i])
+        # cv2.imwrite(f'{i}.jpg', images[i])
+    cv2.waitKey()
 
     return ''
