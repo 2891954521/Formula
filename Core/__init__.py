@@ -1,10 +1,10 @@
 import cv2
 import numpy as np
 
-from . import Analyzer
+from .Analyzer import FourArithmetic
+
 from . import Recognizer
 
-analyzer = Analyzer
 recognizer = Recognizer
 
 def process(file) -> tuple:
@@ -15,4 +15,4 @@ def process(file) -> tuple:
 
     formula = recognizer.recognize(image)
     
-    return (formula, analyzer.analyze(formula))
+    return (formula, FourArithmetic().analyze(formula))

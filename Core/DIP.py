@@ -24,37 +24,39 @@ def split(binary) -> list:
     '''
     图片分割，沿水平方向分割
     '''
-    row = binary.sum(axis=0)
-
-    start = -1
-    
+    pos = 0
     images = []
 
-    for i in range(len(row)):
+    lines = binary.sum(axis=1)
 
-        if row[i] > 0:
+    while pos < len(lines) - 1:
+
+        start, pos = __findContinuity(lines, pos, len(lines))
+
+        # 找到了一行的底部，切出一整行
+        line = binary[start: pos, :]
+
+        cur = 0
+        row = line.sum(axis=0)
+
+        while cur < len(row) - 1:
+
+            start, cur = __findContinuity(row, cur, len(row))
+
             if start == -1:
-                # 确定左边界
-                start = i
-        elif start != -1:
-            # 确定 右边界 和 切割区域
-            split = binary[:, start: i]
-            col = split.sum(axis=1)
-            start = -1
-            end = -1
-            for j in range(len(col)):
-                if col[j] > 0:
-                    start = j
-                    break
-            for j in range(len(col) - 1, -1, -1):
-                if col[j] > 0:
-                    # 确定下边界
-                    end = j
-                    break
+                continue
+
+            # 切出第一个字符
+            split = line[:, start: cur]
+
+            start, end = __findBoundary(split.sum(axis=1))
+
             # 确定切割区域
-            split = split[start: end, :]
-            if split.shape[1] > 5 and split.shape[0] > 5:
+            split = split[start: end + 1, :]
+
+            if split.shape[1] > 5 or split.shape[0] > 5:
                 images.append(split)
+
             start = -1
 
     return images
@@ -69,3 +71,39 @@ def split(binary) -> list:
     #     # image = cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 1)
         
     # return result
+
+
+def __findContinuity(image:np.ndarray, st:int, ed:int) -> tuple:
+    '''
+    查找连续的区域
+    '''
+    start = -1
+    for i in range(st, ed):
+
+        if image[i] > 0:
+            if start == -1:
+                start = i
+            continue
+
+        if start == -1:
+            continue
+
+        return start, i
+    return -1, ed
+
+
+def __findBoundary(col:np.ndarray) -> tuple:
+    '''
+    查找边界
+    '''
+    start = -1
+    end = -1
+    for i in range(len(col)):
+        if col[i] > 0:
+            start = i
+            break
+    for i in range(len(col) - 1, -1, -1):
+        if col[i] > 0:
+            end = i + 1
+            break
+    return start, end

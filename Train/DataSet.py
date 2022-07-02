@@ -1,19 +1,28 @@
 import os
 import cv2
 
-def loadData() -> list:
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Data')
-    print(path)
-    names = os.listdir(path)
-    print(names)
-    result = []
-    for name in names:
-        image = cv2.imread(os.path.join(path, name))
-        width = image.shape[1] // 12
-        height = image.shape[0] // 5
-        images = []
-        for y in range(0, image.shape[0], height):
-            for x in range(0, image.shape[1], width):
-                images.append(image[y:y+height, x:x+width])
-        result.append((name.split('.')[0].replace('x', '*').replace('I','/'), images))
-    return result
+from Core import DIP
+
+def loadData() -> tuple:
+    path = os.path.dirname(os.path.abspath(__file__))
+
+    image = cv2.imread(os.path.join(path, 'Data/data.png'))
+
+    # 转灰度图
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # 二值化
+    binary = DIP.binarization(gray, 160)
+
+    # cv2.imwrite(os.path.join(path, 'Data/binary.png'), binary)
+
+    # 分割
+    images = DIP.split(binary)
+    
+    # 处理为一维
+    images = [image.flatten() for image in images]
+
+    char = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/', '-', '*']
+    labels = [[i] * 60 for i in char]
+
+    return images, labels
