@@ -1,7 +1,6 @@
 import cv2
 
-from . import DIP
-from .. import Tool
+from .. import DIP, Tool
 
 def recognize(image) -> str:
 
