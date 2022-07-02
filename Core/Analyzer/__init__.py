@@ -1,2 +1,6 @@
+from Analyzer import FourArithmetic
+
+
 def analyze(formula: str) -> str:
-    return 'test'
+    return FourArithmetic().analyze(formula)
+
