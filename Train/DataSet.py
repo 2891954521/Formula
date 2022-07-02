@@ -1,6 +1,6 @@
 import os
 import cv2
-
+import numpy as np
 from Core import DIP
 
 def loadData() -> tuple:
@@ -20,7 +20,7 @@ def loadData() -> tuple:
     images = DIP.split(binary)
     
     # 处理为一维
-    images = [image.flatten() for image in images]
+    images = [np.reshape(image, (1, -1)) for image in images]
 
     char = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/', '-', '*']
     labels = [[i] * 60 for i in char]
