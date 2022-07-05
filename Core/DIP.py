@@ -80,7 +80,7 @@ def split(binary) -> list:
                     left = delta // 2
                     right = delta - left
                     split = cv2.copyMakeBorder(split, 0, 0, left, right, cv2.BORDER_CONSTANT, value=0)
-                split = cv2.resize(split, (28, 28))
+                split = cv2.resize(split, (28, 28), interpolation=cv2.INTER_NEAREST)
 
                 images.append(split)
 

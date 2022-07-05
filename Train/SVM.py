@@ -6,10 +6,17 @@ from . import DataSet
 
 def SVMTrain():
     st = time.time()
-    dataMat, dataLabel = DataSet.loadData()
+
+    dataMat, dataLabel = DataSet.loadBinarySplit()
+
+    et = time.time()
+    print("Load image spent {:.4f}s.".format((et - st)))
+    st = time.time()
+
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'svm.model')
-    clf = svm.SVC(C = 1.0, kernel='rbf', cache_size = 1000, verbose = True, decision_function_shape='ovr')
+    clf = svm.SVC(C = 1.0, kernel='linear', cache_size = 1000, decision_function_shape='ovr')
     rf = clf.fit(dataMat, dataLabel)
     joblib.dump(rf, path)
+
     et = time.time()
     print("Training spent {:.4f}s.".format((et - st)))

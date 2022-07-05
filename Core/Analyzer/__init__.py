@@ -14,23 +14,26 @@ class FourArithmetic(BaseAnalyzer):
             pass
     
         def analyze(self, formula: str):
-            hasOperation = True
+            try:
+                hasOperation = True
 
-            while hasOperation:
-                hasOperation = False
-                    
-                # 找一个乘除表达式
-                matcher = re.search(self.regMultiplyOrDivide, formula)
-                if matcher is not None:
-                    formula = formula[0 : matcher.start()] + '{:.2f}'.format(eval(matcher.group(0))).rstrip('0').rstrip('.') + formula[matcher.end() : ]
-                    hasOperation = True
-                    continue
+                while hasOperation:
+                    hasOperation = False
+                        
+                    # 找一个乘除表达式
+                    matcher = re.search(self.regMultiplyOrDivide, formula)
+                    if matcher is not None:
+                        formula = formula[0 : matcher.start()] + '{:.2f}'.format(eval(matcher.group(0))).rstrip('0').rstrip('.') + formula[matcher.end() : ]
+                        hasOperation = True
+                        continue
 
-                # 找一个加减表达式
-                matcher = re.search(self.regAddOrSub, formula)
-                if matcher is not None:
-                    formula = formula[0 : matcher.start()] + str(eval(matcher.group(0))) + formula[matcher.end() : ]
-                    hasOperation = True
-                    continue
+                    # 找一个加减表达式
+                    matcher = re.search(self.regAddOrSub, formula)
+                    if matcher is not None:
+                        formula = formula[0 : matcher.start()] + str(eval(matcher.group(0))) + formula[matcher.end() : ]
+                        hasOperation = True
+                        continue
 
-            return formula
+                return formula
+            except:
+                return ''
