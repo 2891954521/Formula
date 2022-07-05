@@ -1,2 +1,5 @@
+from GUI.MainPage import MainPage
+
+
 def run():
-    pass
+    MainPage().page.mainloop()
