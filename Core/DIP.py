@@ -20,6 +20,23 @@ def binarization(image, threshold:int = 63) -> np.ndarray:
     return 255 - np.array(image, dtype = np.uint8)
 
 
+def iterationThreshold(imgray):
+    '''
+    迭代阈值分割
+    '''
+    T = np.mean(imgray)
+    k = 0
+    while True:
+        T0 = np.mean(imgray[imgray < T])
+        T1 = np.mean(imgray[imgray > T])
+        newT = (T0 + T1) / 2
+        if abs(T - newT) < 1:
+            break
+        else:
+            T = newT
+    return (imgray < T) * 0 + (T > imgray) * 255
+
+
 def split(binary) -> list:
     '''
     图片分割，沿水平方向分割
@@ -87,6 +104,78 @@ def split(binary) -> list:
             start = -1
 
     return images
+
+
+def splitByLine(binary) -> list:
+    '''
+    图片按行分割，沿水平方向分割
+    '''
+    pos = 0
+    formulas = []
+
+    lines = binary.sum(axis=1)
+
+    while pos < len(lines) - 1:
+
+        start, pos = __findContinuity(lines, pos, len(lines))
+
+        # 找到了一行的底部，切出一整行
+        line = binary[start: pos, :]
+        images = []
+
+        cur = 0
+        lastWidth = -1
+        lastHeight = -1
+
+        row = line.sum(axis=0)
+
+        while cur < len(row) - 1:
+
+            start, cur = __findContinuity(row, cur, len(row))
+
+            if start == -1:
+                continue
+
+            # 切出第一个字符
+            split = line[:, start: cur]
+
+            start, end = __findBoundary(split.sum(axis=1))
+
+            # 确定切割区域
+            split = split[start: end + 1, :]
+
+            width = split.shape[1]
+            height = split.shape[0]
+
+            if width > 5 or height > 5:
+
+                if lastHeight != -1 and lastWidth != -1:
+                    if  height / lastHeight < 0.4 and width / lastWidth < 0.4:
+                        continue
+                    
+                lastWidth = width
+                lastHeight = height
+
+                # 调整为28x28像素
+                if width > height:
+                    delta = width - height
+                    top = delta // 2
+                    bottom = delta - top
+                    split = cv2.copyMakeBorder(split, top, bottom, 0, 0, cv2.BORDER_CONSTANT, value=0)
+                elif width < height:
+                    delta = height - width
+                    left = delta // 2
+                    right = delta - left
+                    split = cv2.copyMakeBorder(split, 0, 0, left, right, cv2.BORDER_CONSTANT, value=0)
+                split = cv2.resize(split, (28, 28), interpolation=cv2.INTER_NEAREST)
+
+                images.append(split)
+
+            start = -1
+
+        formulas.append(images)
+        
+    return formulas
 
     # contours, hierarchy = cv2.findContours(binary, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
