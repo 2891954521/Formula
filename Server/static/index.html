@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title> 手写数字识别 </title>
+</head>
+<style>
+  ul {
+    background: #333;
+    width: 100%;
+    height:10vh;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    z-index: 10;
+  }
+  li {
+    display: block;
+    color: white;
+    text-align: center;/*水平居中*/
+    font-size: 3vh;
+  }
+  #imgBox{
+    display: none;
+  }
+  #img_o{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 3vh auto;
+    width: 80%;
+    overflow: auto;
+    border-radius: 20px;
+  }
+
+  .infoBox{
+    font-size: 1.5vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    text-align: center;
+    width: 80vw;
+    max-width:40vh;
+    border-radius: 15px;
+  }
+
+  #formula,#result {
+    background: #999999;
+    height: 15vh;
+  }
+
+  label{
+    position: relative;
+
+  }
+  #img_file{
+
+    position: absolute;
+    opacity: 0;
+    font-size: 1.5vh;
+
+    min-width: 160px;
+    min-height: 60px;
+    max-width: 50vw;
+    width: 40vw;
+    height:5vh;
+  }
+ .btn{
+   font-size: 1.5vh;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   margin: auto;
+   text-align: center;
+
+    min-width: 160px;
+    min-height: 60px;
+    max-width: 50vw;
+    width: 40vw;
+    height:5vh;
+
+    background: #00b0f0;
+    color: #FFF;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+  }
+
+
+
+
+
+
+</style>
+<body bgcolor="#414141" style="margin: 0px;">
+
+  <ul>
+    <li class="TopBar"><a>手写数字识别</a></li>
+  </ul>
+
+  <div style="padding: 2%;">
+
+  <div id="imgBox">
+      <img src='' alt=''  id='img_o' >
+  </div>
+    <br><br>
+    <div>
+      <div>
+      <input  class ="infoBox" id="formula" placeholder="此处显示识别结果">
+        <br><br>
+      <input  class ="infoBox" id="result" placeholder="此处显示计算结果">
+      </div>
+      <br><br>
+
+      <label class="infoBox">
+        <input  type="button" class="btn" id="newbt" value="点击上传">
+        <input  type='file' id='img_file' accept=".png,.jpg" onchange='showImg()'/>
+      </label>
+
+      <br><br>
+      <label class="infoBox">
+        <button class ="btn" onclick="UploadMyFile()">提交</button>
+      </label>
+      <br>
+    </div>
+  </div>
+
+</body>
+
+<script>
+
+  // var url = document.getElementById("server").value; // 接收上传文件的后台地址
+  var myimage = null;//图片缓存？
+  var re = null;//图片缓存？
+
+
+  //上传图片之后显示
+  function showImg() {
+    myimage = document.getElementById('img_file').files[0];
+    re = new FileReader();
+    re.readAsDataURL(myimage);
+    re.onload = function (re) {
+      document.getElementById('img_o').src = re.target.result;
+      document.getElementById('imgBox').style.display = "block";
+    }
+  }
+
+  function UploadMyFile() {
+    let myfile = document.getElementById("img_file").files[0]; // js 获取文件对象
+    let myform = new FormData(); // FormData 对象
+    myform.append("upload", 1);
+    myform.append("image", myfile); // 文件对象
+
+    let xhr = new XMLHttpRequest();  //创建XMLHttpRequest对象
+
+    if (!xhr) {
+      alert("XMLHttpRequest创建失败!");
+      return;
+    }
+
+    xhr.onreadystatechange = function () {
+      //判断对象状态是否交互完成，如果为4则交互完成//判断对象状态是否交互成功,如果成功则为200
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          alert("文件上传成功!");//接收数据,得到服务器输出的纯文本数据
+          let response = xhr.responseText;
+          let obj = JSON.parse(response);
+          document.getElementById('formula').value = obj['formula'];
+          document.getElementById('result').value = obj['result'];
+        } else {
+          alert("文件上传失败!");
+        }
+      }
+    };
+    xhr.open("post", window.location.origin + '/upload', true);/*post方式，url为服务器请求地址，true 该参数规定请求是否异步处理。*/
+
+    xhr.send(myform); //开始上传，发送form数据
+  }
+
+
+</script>
+</html>
